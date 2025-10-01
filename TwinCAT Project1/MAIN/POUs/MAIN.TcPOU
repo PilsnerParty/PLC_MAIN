@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="MAIN" Id="{5dced431-628f-44e1-b955-a74faa465fd6}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+    // ===== Inputs (map these in I/O Mapping or force online) =====
+    StartBtn    : BOOL;  // Start command (rising edge)
+    StopBtn     : BOOL;  // Emergency/stop command (rising edge)
+    DepressSw   : BOOL;  // TRUE when forward limit (depressor) is reached
+    HomeSw      : BOOL;  // TRUE when returned to home
+
+    // ===== Outputs (map these to your DOs) =====
+    MotorFwd    : BOOL;  // Drive forward
+    MotorBwd    : BOOL;  // Drive backward
+
+    // ===== Step / control =====
+    Step        : INT := 0;    // 0=IDLE, 10=FWD, 20=BWD, 30=DONE
+    StartEdge   : R_TRIG;      // Rising-edge detector for StartBtn
+    StopEdge    : R_TRIG;      // Rising-edge detector for StopBtn
+
+    // ===== Timer =====
+    tMoveTmr    : TON;         // Movement timeout timer
+    T_MOVE_MAX  : TIME := T#10S;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// --- Edge detection (call FB instances each cycle) ---
+StartEdge(CLK := StartBtn);
+StopEdge(CLK := StopBtn);
+
+// --- Global STOP: drop outputs and go idle ---
+IF StopEdge.Q THEN
+    MotorFwd := FALSE;
+    MotorBwd := FALSE;
+    Step := 0;
+    tMoveTmr(IN := FALSE);
+END_IF
+
+CASE Step OF
+
+    0: // IDLE
+        MotorFwd := FALSE;
+        MotorBwd := FALSE;
+        tMoveTmr(IN := FALSE);
+
+        // Start only if not already at forward limit
+        IF StartEdge.Q AND NOT DepressSw THEN
+            Step := 10;
+        END_IF
+
+    10: // MOVE FORWARD until DepressSw or timeout
+        MotorFwd := TRUE;
+        MotorBwd := FALSE;
+        tMoveTmr(IN := TRUE, PT := T_MOVE_MAX);
+
+        IF DepressSw THEN
+            MotorFwd := FALSE;
+            tMoveTmr(IN := FALSE);
+            Step := 20;
+        ELSIF tMoveTmr.Q THEN
+            MotorFwd := FALSE;
+            Step := 0; // timeout -> back to IDLE
+        END_IF
+
+    20: // MOVE BACKWARD until HomeSw or timeout
+        MotorFwd := FALSE;
+        MotorBwd := TRUE;
+        tMoveTmr(IN := TRUE, PT := T_MOVE_MAX);
+
+        IF HomeSw THEN
+            MotorBwd := FALSE;
+            tMoveTmr(IN := FALSE);
+            Step := 30;
+        ELSIF tMoveTmr.Q THEN
+            MotorBwd := FALSE;
+            Step := 0; // timeout -> back to IDLE
+        END_IF
+
+    30: // DONE → back to IDLE
+        MotorFwd := FALSE;
+        MotorBwd := FALSE;
+        Step := 0;
+
+END_CASE
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="165" Count="57" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

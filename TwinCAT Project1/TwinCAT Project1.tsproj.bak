@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.68">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-000000000041}" TcBaseType="true" HideSubItems="true" CName="AmsNetId">AMSNETID</Name>
+			<BitSize>48</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>6</Elements>
+			</ArrayInfo>
+			<Format>
+				<Printf>%d.%d.%d.%d.%d.%d</Printf>
+				<Parameter>[0]</Parameter>
+				<Parameter>[1]</Parameter>
+				<Parameter>[2]</Parameter>
+				<Parameter>[3]</Parameter>
+				<Parameter>[4]</Parameter>
+				<Parameter>[5]</Parameter>
+			</Format>
+		</DataType>
+	</DataTypes>
+	<Project ProjectGUID="{1C45F629-249A-4D33-B0A0-C2B7FE7CB19F}" Target64Bit="true" ShowHideConfigurations="#x6">
+		<System>
+			<Tasks>
+				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
+					<Name>PlcTask</Name>
+				</Task>
+				<Task Id="4" Priority="21" CycleTime="100000" AmsPort="351" AdtTasks="true">
+					<Name>PlcTask1</Name>
+				</Task>
+			</Tasks>
+		</System>
+		<Plc>
+			<Project GUID="{8843D535-8323-4A21-8280-71B9CBFA1CA4}" Name="MAIN" PrjFilePath="MAIN\MAIN.plcproj" TmcFilePath="MAIN\MAIN.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{BE0D17CE-C861-DD22-D263-4F9FA1FA939C}">
+					<Name>MAIN Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Contexts>
+						<Context>
+							<Id>0</Id>
+							<Name>PlcTask</Name>
+							<ManualConfig>
+								<OTCID>#x02010040</OTCID>
+							</ManualConfig>
+							<Priority>21</Priority>
+							<CycleTime>10000000</CycleTime>
+						</Context>
+					</Contexts>
+					<TaskPouOids>
+						<TaskPouOid Prio="21" OTCID="#x08502001"/>
+					</TaskPouOids>
+				</Instance>
+			</Project>
+		</Plc>
+		<Io>
+			<Device Id="1" DevType="144" AmsPort="28673" AmsNetId="172.18.64.1.2.1" RemoteName="Device 1 (EtherCAT Simulation)">
+				<Name>Device 1 (EtherCAT Simulation)</Name>
+				<DevData>0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000</DevData>
+				<Vars VarGrpType="1">
+					<Name>Inputs</Name>
+					<Var>
+						<Name>Status</Name>
+						<Type>UDINT</Type>
+					</Var>
+					<Var>
+						<Name>Telegram Counter</Name>
+						<Type>UDINT</Type>
+						<BitOffs>32</BitOffs>
+					</Var>
+					<Var>
+						<Name>Dc Time</Name>
+						<Type>ULINT</Type>
+						<BitOffs>64</BitOffs>
+					</Var>
+					<Var>
+						<Name>Dc Time to System Time Offset</Name>
+						<Type>ULINT</Type>
+						<BitOffs>128</BitOffs>
+					</Var>
+					<Var>
+						<Name>DevState</Name>
+						<Comment><![CDATA[0x0001 = Link error
+0x0100 = At least one device in 'INIT' state
+0x0200 = At least one device in 'PRE-OP' state
+0x0400 = At least one device in 'SAFE-OP' state
+0x0800 = At least one device indicates an error state
+]]></Comment>
+						<Type>UINT</Type>
+						<BitOffs>256</BitOffs>
+					</Var>
+					<Var>
+						<Name>AmsNetId</Name>
+						<Comment><![CDATA[AmsNetId of Simulation device]]></Comment>
+						<Type GUID="{18071995-0000-0000-0000-000000000041}">AMSNETID</Type>
+						<BitOffs>1536</BitOffs>
+					</Var>
+				</Vars>
+				<Vars VarGrpType="2">
+					<Name>Outputs</Name>
+					<Var>
+						<Name>Control</Name>
+						<Type>UDINT</Type>
+					</Var>
+				</Vars>
+				<Image Id="1" AddrType="1" ImageType="3" SizeIn="65536" SizeOut="65536">
+					<Name>Image</Name>
+				</Image>
+				<EcatSimu>
+					<GeneralSettings SecondAdapter="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"/>
+					<DevSettings/>
+				</EcatSimu>
+			</Device>
+		</Io>
+	</Project>
+</TcSmProject>
